@@ -1,11 +1,14 @@
-const {createUser} = require('../services/userService')
+const {register,getUser} = require('../services/userService')
 
-const handleCreateUser = async(req,res)=>{
+const handleRegister = async(req,res)=>{
     const data = req.body
-    console.log(data);
-    
-    const message = await createUser(data)
+    const message = await register(data)
     return res.status(200).json(message)
 }
 
-module.exports ={handleCreateUser}
+const handleGetUser = async(req,res)=>{
+    const message = await getUser()
+    return res.status(200).json(message)
+}
+
+module.exports ={handleRegister,handleGetUser}
