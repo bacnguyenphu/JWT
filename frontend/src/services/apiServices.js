@@ -8,4 +8,15 @@ const register = (email,password,username,phone)=>{
     return axios.post('register',{email,password,username,phone})
 }
 
-export {testApi,register}
+const login = (email,password)=>{
+    return axios.post('login',{email,password})
+}
+
+const getUsers = (page,limit)=>{
+    return axios.get('getUsers',{params:{
+        page,
+        limit
+    }})
+}
+
+export {testApi,register,login,getUsers}

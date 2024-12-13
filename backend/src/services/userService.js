@@ -31,10 +31,22 @@ const checkPhone = async (phoneUser) => {
     }
 }
 
+const checkPassword = async (password, passIndata) => {
+    if (password) {
+        const check = await bcrypt.compareSync(password, passIndata);
+        if (check) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+}
+
 const register = async (data) => {
     try {
 
-        if(!data.email||!data.username||!data.phone||!data.password){
+        if (!data.email || !data.username || !data.phone || !data.password) {
             return {
                 errCode: 3,
                 message: "Missing required parameters",
@@ -48,8 +60,8 @@ const register = async (data) => {
             }
         }
 
-        if(await checkPhone(data.phone)){
-            return{
+        if (await checkPhone(data.phone)) {
+            return {
                 errCode: 2,
                 message: "Phonenumber is used",
             }
@@ -60,7 +72,7 @@ const register = async (data) => {
             email: data.email,
             password: password,
             username: data.username,
-            phone:data.phone,
+            phone: data.phone,
         })
         return {
             errCode: 0,
@@ -77,37 +89,79 @@ const register = async (data) => {
     }
 }
 
+const login = async (data) => {
+    try {
+        if (!await checkEmail(data.email)) {
+            return {
+                errCode: 1,
+                message: "Email does not exist"
+            }
+        }
+        else {
+            let user = await db.User.findOne({ 
+                where: { email: data.email },
+                raw: true,
+             });
+
+            if (!await checkPassword(data.password, user.password)) {
+                return {
+                    errCode: 2,
+                    message: "Incorrect password",
+                }
+            }
+
+            return {
+                errCode: 0,
+                message: "Login succsess",
+                user:{
+                    username:user.username,
+                    email:user.email,
+                    phone:user.phone,
+                    sex:user.sex,
+                    address:user.address,
+                    groupId:user.groupId,
+                    id:user.id
+                }
+            }
+
+        }
+
+
+    } catch (error) {
+        console.log("error server");
+        return {
+            errCode: -1,
+            message: "Error server"
+        }
+    }
+}
+
 const getUser = async () => {
     try {
-        const user = await db.User.findOne({
-            where: {
-                id: 1
-            },
+        const user = await db.User.findAll({
+            attributes: { exclude: ['password', 'createdAt', 'updatedAt'] } ,
             raw: true,
             nest: true,
             include: [
-                { model: db.Group, as: "group" }
+                { model: db.Group, as: "group", attributes: { exclude: [ 'createdAt', 'updatedAt'] }}
             ],
 
         })
 
-        console.log('check get user>>', user);
+        // console.log('check get user>>', user);
 
-        const role = await db.Role.findAll({
-            include: { model: db.Group,as:"groups", where: { id: 1 } },
-            raw: true,
-            nest: true,
-        })
+        // const role = await db.Role.findAll({
+        //     include: { model: db.Group, as: "groups", where: { id: 1 } },
+        //     raw: true,
+        //     nest: true,
+        // })
 
-        console.log('check role>>',role);
-        
-
-
+        // console.log('check role>>', role);
 
         return {
             errCode: 0,
             message: "Get user succsess",
-            data: role
+            data: user
         }
 
     } catch (error) {
@@ -119,4 +173,33 @@ const getUser = async () => {
     }
 }
 
-module.exports = { register, getUser }
+const getUserWithPagination = async(page,limit)=>{
+    try {
+        
+        const offset = (page-1)*limit
+        console.log('check input>>>',page,limit,offset);
+        const { count, rows } = await db.User.findAndCountAll({
+            
+            offset: offset,
+            limit: limit,
+          });
+
+        return{
+            errCode: 0,
+            message: "Get user success",
+            data:{
+                totalPages: Math.ceil(count / limit),
+                totalRows: count,
+                users: rows
+            }
+        }
+        
+    } catch (error) {
+        return {
+            errCode: -1,
+            message: "Error server"
+        }   
+    }
+}
+
+module.exports = { register, login, getUser,getUserWithPagination }
