@@ -98,10 +98,10 @@ const login = async (data) => {
             }
         }
         else {
-            let user = await db.User.findOne({ 
+            let user = await db.User.findOne({
                 where: { email: data.email },
                 raw: true,
-             });
+            });
 
             if (!await checkPassword(data.password, user.password)) {
                 return {
@@ -113,14 +113,14 @@ const login = async (data) => {
             return {
                 errCode: 0,
                 message: "Login succsess",
-                user:{
-                    username:user.username,
-                    email:user.email,
-                    phone:user.phone,
-                    sex:user.sex,
-                    address:user.address,
-                    groupId:user.groupId,
-                    id:user.id
+                user: {
+                    username: user.username,
+                    email: user.email,
+                    phone: user.phone,
+                    sex: user.sex,
+                    address: user.address,
+                    groupId: user.groupId,
+                    id: user.id
                 }
             }
 
@@ -139,11 +139,11 @@ const login = async (data) => {
 const getUser = async () => {
     try {
         const user = await db.User.findAll({
-            attributes: { exclude: ['password', 'createdAt', 'updatedAt'] } ,
+            attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
             raw: true,
             nest: true,
             include: [
-                { model: db.Group, as: "group", attributes: { exclude: [ 'createdAt', 'updatedAt'] }}
+                { model: db.Group, as: "group", attributes: { exclude: ['createdAt', 'updatedAt'] } }
             ],
 
         })
@@ -173,33 +173,140 @@ const getUser = async () => {
     }
 }
 
-const getUserWithPagination = async(page,limit)=>{
+const getUserWithPagination = async (page, limit) => {
     try {
-        
-        const offset = (page-1)*limit
-        console.log('check input>>>',page,limit,offset);
+
+        const offset = (page - 1) * limit
         const { count, rows } = await db.User.findAndCountAll({
-            
+
             offset: offset,
             limit: limit,
-          });
+        });
 
-        return{
+        return {
             errCode: 0,
             message: "Get user success",
-            data:{
+            data: {
                 totalPages: Math.ceil(count / limit),
                 totalRows: count,
                 users: rows
             }
         }
-        
+
     } catch (error) {
+        console.log('Error server');
         return {
             errCode: -1,
             message: "Error server"
-        }   
+        }
     }
 }
 
-module.exports = { register, login, getUser,getUserWithPagination }
+const deleteUser = async (id) => {
+
+    try {
+        if (!id) {
+            return {
+                errCode: 1,
+                message: "Id is required"
+            }
+        }
+
+        const user = await db.User.findOne({
+            where: { id: id }
+        })
+
+        if (!user) {
+            return {
+                errCode: 2,
+                message: "User is not exist"
+            }
+        }
+
+        await db.User.destroy({
+            where: { id: id }
+        })
+
+        return {
+            errCode: 0,
+            message: "Delete user success"
+        }
+
+    } catch (error) {
+        console.log('Error server');
+        return {
+            errCode: -1,
+            message: "Error server"
+        }
+    }
+}
+
+const getGroups = async () => {
+    try {
+        const groups = await db.Group.findAll({
+            attributes: { exclude: ['createdAt', 'updatedAt'] }
+        })
+        return {
+            errCode: 0,
+            message: "Get groups succsess",
+            groups: groups
+        }
+
+    } catch (error) {
+        console.log('Error server');
+        return {
+            errCode: -1,
+            message: "Error server"
+        }
+    }
+}
+
+const createUser = async (data) => {
+    try {
+        console.log('check data>>', data);
+
+        if (!data.email || !data.username || !data.phone || !data.password) {
+            return {
+                errCode: 3,
+                message: "Missing required parameters",
+            }
+        }
+
+        if (await checkEmail(data.email)) {
+            return {
+                errCode: 1,
+                message: "Email is used",
+            }
+        }
+
+        if (await checkPhone(data.phone)) {
+            return {
+                errCode: 2,
+                message: "Phonenumber is used",
+            }
+        }
+
+        const password = await hashPassword(data.password)
+        await db.User.create({
+            email: data.email,
+            password: password,
+            username: data.username,
+            phone: data.phone,
+            address: data.address,
+            sex: data.sex,
+            groupId: data.groupId
+        })
+        return {
+            errCode: 0,
+            message: "Create user success",
+        }
+    } catch (error) {
+        console.log('Error server');
+        return {
+            errCode: -1,
+            message: "Error server"
+        }
+    }
+}
+
+module.exports = { register, login, getUser, getUserWithPagination, deleteUser, getGroups, createUser }

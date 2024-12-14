@@ -12,6 +12,10 @@ const login = (email,password)=>{
     return axios.post('login',{email,password})
 }
 
+const getGroups = ()=>{
+    return axios.get('getGroups')
+}
+
 const getUsers = (page,limit)=>{
     return axios.get('getUsers',{params:{
         page,
@@ -19,4 +23,12 @@ const getUsers = (page,limit)=>{
     }})
 }
 
-export {testApi,register,login,getUsers}
+const deleteUser = (id)=>{
+    return axios.delete('deleteUser',{ params: { id } })
+}
+
+const createUser = (data)=>{
+    return axios.post('createUser',{...data})
+}
+
+export {testApi,register,login,getUsers,deleteUser,getGroups,createUser}
