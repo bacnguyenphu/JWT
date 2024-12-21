@@ -30,7 +30,7 @@ function Login() {
             }
             toast.success(res.message)
             dispatch(loginRedux(payload))
-            navigate('/user')
+            navigate('/')
         }
         else {
             toast.error(res.message)

@@ -8,8 +8,10 @@ function User() {
 
     const [listUsers, setListUsers] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
-    const [limit, setLimit] = useState(8)
+    const [limit, setLimit] = useState(5)
     const [totalPages, setTotalPages] = useState(1)
+    const [isEdit,setIsEdit] = useState(false)
+    const [idUser,setIdUser] = useState()
 
     const[showModal,setShowModal] = useState(false)
 
@@ -46,8 +48,14 @@ function User() {
         setCurrentPage(event.selected + 1)
     }
 
+    const handleClickEdit = (idUser)=>{
+        setShowModal(true)
+        setIsEdit(true)
+        setIdUser(idUser)
+    }
+
     return (
-        <div className="px-4">
+        <div className="px-4 mt-5">
             <div>
                 <button
                     onClick={()=>{setShowModal(true)}}
@@ -79,6 +87,7 @@ function User() {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <button
                                                 className="px-4 py-2 font-medium text-white bg-yellow-600 rounded-md hover:bg-yellow-500 focus:outline-none focus:shadow-outline-blue active:bg-blue-600 transition duration-150 ease-in-out"
+                                                onClick={()=>{handleClickEdit(user.id)}}
                                             >
                                                 Edit
                                             </button>
@@ -118,7 +127,7 @@ function User() {
                     renderOnZeroPageCount={null}
                 />
             </div>
-            {showModal&&<ModelCRUD setShowModal={setShowModal} fetchUsers={fetchUsers}/>}
+            {showModal&&<ModelCRUD setShowModal={setShowModal} fetchUsers={fetchUsers} isEdit={isEdit} setIsEdit={setIsEdit} idUser={idUser}/>}
 
         </div>
 

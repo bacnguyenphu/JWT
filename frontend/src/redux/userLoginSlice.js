@@ -10,7 +10,7 @@ export const userLogin = createSlice({
         address: '',
         groupId: '',
         id: '',
-        isAuthenticated: true
+        isAuthenticated: false
     },
     reducers: {
         loginRedux: (state, action) => {

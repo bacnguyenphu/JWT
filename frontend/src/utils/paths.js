@@ -1,2 +1,7 @@
 export const LOGIN = '/login'
 export const REGISTER = '/register'
+export const HOME = '/'
+export const USERS = '/users'
+export const ROLES = '/roles'
+export const PROJECTS = '/projects'
+export const ABOUT = '/about'

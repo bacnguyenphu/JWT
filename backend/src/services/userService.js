@@ -2,6 +2,8 @@ const { where } = require('sequelize/lib/sequelize');
 const db = require('../models/index')
 const bcrypt = require('bcrypt');
 const { raw } = require('mysql2');
+const { getGroupsWithRoles } = require('./JWTservices');
+const { createJWT } = require('../middleware/JWTaction');
 const salt = bcrypt.genSaltSync(10)
 
 const hashPassword = async (password) => {
@@ -73,6 +75,7 @@ const register = async (data) => {
             password: password,
             username: data.username,
             phone: data.phone,
+            groupId:4
         })
         return {
             errCode: 0,
@@ -110,9 +113,8 @@ const login = async (data) => {
                 }
             }
 
-            return {
-                errCode: 0,
-                message: "Login succsess",
+            const roles = await getGroupsWithRoles(user)
+            const payload = {
                 user: {
                     username: user.username,
                     email: user.email,
@@ -121,7 +123,26 @@ const login = async (data) => {
                     address: user.address,
                     groupId: user.groupId,
                     id: user.id
-                }
+                },
+                group:roles
+            }
+
+            const access_token = createJWT(payload)
+
+            return {
+                errCode: 0,
+                message: "Login succsess",
+                access_token,
+                user: {
+                    username: user.username,
+                    email: user.email,
+                    phone: user.phone,
+                    sex: user.sex,
+                    address: user.address,
+                    groupId: user.groupId,
+                    id: user.id
+                },
+                group:roles
             }
 
         }
@@ -147,16 +168,6 @@ const getUser = async () => {
             ],
 
         })
-
-        // console.log('check get user>>', user);
-
-        // const role = await db.Role.findAll({
-        //     include: { model: db.Group, as: "groups", where: { id: 1 } },
-        //     raw: true,
-        //     nest: true,
-        // })
-
-        // console.log('check role>>', role);
 
         return {
             errCode: 0,
@@ -192,6 +203,37 @@ const getUserWithPagination = async (page, limit) => {
                 users: rows
             }
         }
+
+    } catch (error) {
+        console.log('Error server');
+        return {
+            errCode: -1,
+            message: "Error server"
+        }
+    }
+}
+
+const getUserById = async (id) => {
+    try {
+
+        if (!id) {
+            return {
+                errCode: 1,
+                message: "ID is required"
+            }
+        }
+        const user = await db.User.findOne(
+            {
+                where: { id: id },
+                attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
+            },
+        )
+        return {
+            errCode: 0,
+            message: "Get user by ID success",
+            user
+        }
+
 
     } catch (error) {
         console.log('Error server');
@@ -263,9 +305,7 @@ const getGroups = async () => {
 
 const createUser = async (data) => {
     try {
-        console.log('check data>>', data);
-
-        if (!data.email || !data.username || !data.phone || !data.password) {
+        if (!data.email || !data.username || !data.phone || !data.password || !data.groupId) {
             return {
                 errCode: 3,
                 message: "Missing required parameters",
@@ -309,4 +349,52 @@ const createUser = async (data) => {
     }
 }
 
-module.exports = { register, login, getUser, getUserWithPagination, deleteUser, getGroups, createUser }
+const editUser = async (data) => {
+    try {
+        if (!data.email || !data.username || !data.phone || !data.password || !data.groupId) {
+            return {
+                errCode: 1,
+                message: "Missing required parameters",
+            }
+        }
+        if (!data.id) {
+            return {
+                errCode: 2,
+                message: "Id is required",
+            }
+        }
+
+        const password = await hashPassword(data.password)
+
+        await db.User.update(
+            {
+                email: data.email,
+                password: password,
+                username: data.username,
+                phone: data.phone,
+                address: data.address,
+                sex: data.sex,
+                groupId: data.groupId
+            },
+            {
+                where: {
+                    id: data.id,
+                },
+            },
+        );
+
+        return {
+            errCode: 0,
+            message: "Edit user success",
+        }
+
+    } catch (error) {
+        console.log('Error server');
+        return {
+            errCode: -1,
+            message: "Error server"
+        }
+    }
+}
+
+module.exports = { register, login, getUser, getUserWithPagination, deleteUser, getGroups, createUser, editUser, getUserById }
