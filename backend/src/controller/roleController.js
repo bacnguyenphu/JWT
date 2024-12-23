@@ -1,4 +1,4 @@
-const {getRoles,createRoles} = require('../services/roleService')
+const {getRoles,createRoles,deleteRole,getRolebyIdGroup} = require('../services/roleService')
 
 const handleGetRoles = async(req,res)=>{
     const message = await getRoles()
@@ -11,4 +11,16 @@ const handleCreateRoles = async(req,res)=>{
     return res.status(200).json(message)
 }
 
-module.exports = {handleGetRoles,handleCreateRoles}
+const handleDeleteRole = async(req,res)=>{
+    const id = req.query.id
+    const message = await deleteRole(+id)
+    return res.status(200).json(message)
+}
+
+const handleGetRolebyIdGroup = async(req,res)=>{
+    const id = req.query.id
+    const message = await getRolebyIdGroup(id)
+    return res.status(200).json(message)
+}
+
+module.exports = {handleGetRoles,handleCreateRoles,handleDeleteRole,handleGetRolebyIdGroup}

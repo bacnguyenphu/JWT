@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
-import { Home, Login, Register, Roles } from "./components";
+import { GroupRole, Home, Login, Register, Roles } from "./components";
 import { ToastContainer } from 'react-toastify';
-import { HOME, LOGIN, REGISTER, ROLES, USERS } from "./utils/paths";
+import { GROUPROLE, HOME, LOGIN, REGISTER, ROLES, USERS } from "./utils/paths";
 import 'react-toastify/dist/ReactToastify.css';
 import PrivateRoute from "./routes/PrivateRoute";
 import { User } from "./components/ManageUser";
@@ -17,6 +17,7 @@ function App() {
           <Route index element={<Home/>}/>
           <Route path={USERS} element={<PrivateRoute><User /></PrivateRoute>} />
           <Route path={ROLES} element={<PrivateRoute><Roles /></PrivateRoute>} />
+          <Route path={GROUPROLE} element={<PrivateRoute><GroupRole /></PrivateRoute>} />
         </Route>
       </Routes>
 

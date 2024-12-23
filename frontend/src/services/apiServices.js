@@ -55,8 +55,19 @@ const getRoles = ()=>{
 }
 
 const createRoles = (roles)=>{
-    console.log(roles);
     return axios.post('createRoles',roles)
 }
 
-export { testApi, register, login, getUsers, deleteUser, getGroups, createUser, getUserById,editUser,logout,getRoles,createRoles }
+const deleteRole = (id)=>{
+    return axios.delete('deleteRole',{
+        params:{id}
+    })
+}
+
+const getRolebyIdGroup = (id)=>{
+    return axios.get('getRolebyIdGroup',{
+        params:{id}
+    })
+}
+
+export { testApi, register, login, getUsers, deleteUser, getGroups, createUser, getUserById,editUser,logout,getRoles,createRoles,deleteRole,getRolebyIdGroup }

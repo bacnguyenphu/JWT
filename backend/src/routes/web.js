@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const {handleRegister,handleGetUser,handleLogin,handleDeleteUser,handleGetGroups,handleCreateUser,handleEditUser,handleGetUserById,handleLogout} = require('../controller/userController')
-const {handleGetRoles,handleCreateRoles} = require('../controller/roleController')
+const {handleGetRoles,handleCreateRoles,handleDeleteRole,handleGetRolebyIdGroup} = require('../controller/roleController')
 const {checkUserJWT,checkUserPermission} = require('../middleware/JWTaction')
 
 // router.all('*',checkUserJWT,checkUserPermission,)
@@ -25,6 +25,10 @@ router.put('/api/editUser',handleEditUser)
 //role
 router.get('/api/getRoles',handleGetRoles)
 router.post('/api/createRoles',handleCreateRoles)
+router.delete('/api/deleteRole',handleDeleteRole)
+
+//group-role
+router.get('/api/getRolebyIdGroup',handleGetRolebyIdGroup)
 
 router.get('/api/testApi',(req,res)=>{
     return res.status(200).json({

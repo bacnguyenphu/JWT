@@ -17,8 +17,6 @@ function Roles() {
     }
 
     const childRef = useRef()
-    console.log('check childRef>>',childRef);
-    
 
     const [listRoles, setListRoles] = useState([{ ...roleDefault }])
 
@@ -64,11 +62,13 @@ function Roles() {
         try {
             // Gửi API và xử lý kết quả
             const res = await createRoles(roles);
-            console.log('check re>>',res);
-            
+
             if(res&&res.errCode===0){
                 toast.success(res.message)
                 childRef.current.fetchRoles()
+            }
+            else{
+                toast.error(res.message)
             }
         } catch (error) {
             console.error('API Error:', error);

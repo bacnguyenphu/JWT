@@ -47,7 +47,6 @@ const checkUserJWT = (req,res,next)=>{
 }
 
 const checkUserPermission = (req,res,next)=>{
-    console.log('check cookk>>',req.cookies.jwt);
 
     if(nonSecurePaths.includes(req.path)) return next()
     if(req.user){

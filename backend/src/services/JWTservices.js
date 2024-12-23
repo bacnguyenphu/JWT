@@ -1,4 +1,3 @@
-const { where } = require("sequelize/lib/sequelize");
 const db = require("../models");
 
 const getGroupsWithRoles = async (user) => {

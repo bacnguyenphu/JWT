@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { HOME, USERS, ROLES, PROJECTS, ABOUT } from "../utils/paths";
+import { HOME, USERS, ROLES, GROUPROLE } from "../utils/paths";
 import { useSelector,useDispatch } from "react-redux";
 import { FiLogOut } from "react-icons/fi";
 import { loginRedux } from "../redux/userLoginSlice";
@@ -21,13 +21,10 @@ function Header() {
             path: ROLES
         },
         {
-            name: 'Projects',
-            path: PROJECTS
+            name: 'Group-Role',
+            path: GROUPROLE
         },
-        {
-            name: 'About',
-            path: ABOUT
-        },
+        
     ]
 
     const userLogin = useSelector(state => state.loginUser)
@@ -46,7 +43,6 @@ function Header() {
 
     const handleLogOut = async()=>{
         const res = await logout()
-        console.log('check res>>>',res);
         if(res.errCode===0){
             toast.success('Log out succsess')
             navigate('/login')

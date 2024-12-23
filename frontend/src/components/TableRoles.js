@@ -1,5 +1,6 @@
 import { useEffect, useState,forwardRef, useImperativeHandle } from "react";
-import { getRoles } from "../services/apiServices";
+import { deleteRole, getRoles } from "../services/apiServices";
+import { toast } from "react-toastify";
 
 function TableRoles(props,ref) {
 
@@ -20,6 +21,18 @@ function TableRoles(props,ref) {
             fetchRoles()
         }
     }))
+
+    const handleClickDelete = async(id)=>{
+        const res = await deleteRole(id)
+        if(res&&res.errCode===0){
+            toast.success(res.message)
+            fetchRoles()
+        }
+        else{
+            toast.error(res.message)
+        }
+        
+    }
 
     return (
         <div className="relative overflow-x-auto">
@@ -63,7 +76,7 @@ function TableRoles(props,ref) {
                                         </button>
                                         <button
                                             className="ml-2 px-4 py-2 font-medium text-white bg-red-600 rounded-md hover:bg-red-500 focus:outline-none focus:shadow-outline-red active:bg-red-600 transition duration-150 ease-in-out"
-
+                                            onClick={()=>{handleClickDelete(role.id)}}
                                         >
                                             Delete
                                         </button>
