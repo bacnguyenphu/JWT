@@ -150,4 +150,25 @@ const getRolebyIdGroup = async (id) => {
     }
 }
 
-module.exports = { getRoles, createRoles, deleteRole, getRolebyIdGroup }
+const assignRoleToGroup = async (data) => {
+    try {
+        await db.Group_Role.destroy({
+            where:{groupId: data.idGroup}
+        })
+        await db.Group_Role.bulkCreate(data.roles)
+        
+        return{
+            errCode: 0,
+            message: "Assign Role To Group success."
+        }
+
+    } catch (error) {
+        console.log('Error server');
+        return {
+            errCode: -1,
+            message: "Assign Role To Group failse. Error server"
+        }
+    }
+}
+
+module.exports = { getRoles, createRoles, deleteRole, getRolebyIdGroup, assignRoleToGroup }

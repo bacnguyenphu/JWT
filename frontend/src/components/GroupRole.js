@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { getGroups, getRolebyIdGroup, getRoles } from "../services/apiServices";
+import { assignRoleToGroup, getGroups, getRolebyIdGroup, getRoles } from "../services/apiServices";
+import _ from 'lodash'
+import { toast } from "react-toastify";
 
 function GroupRole() {
 
     const [groups, setGroups] = useState([])
     const [roles, setRoles] = useState([])
-    const [listRolesSelected, setListRolesSelected] = useState([])
+    const [idGroupSelected,setIdGroupSelected] = useState()
 
     const fetchGroups = async () => {
         const res = await getGroups()
@@ -44,10 +46,39 @@ function GroupRole() {
             })
             setRoles(checkRoleSelect)
         }
+        setIdGroupSelected(+e.target.value)
     }
 
-    const handleClickOnchangeOption = ()=>{
-        console.log('check roles>>>', roles);
+    const handleClickOnchangeOption = (id) => {
+        const index = roles.findIndex(role => role.id === id)
+        if (index > -1) {
+            let tempRoles = _.cloneDeep(roles)
+            tempRoles[index].isSelected = !tempRoles[index].isSelected
+            setRoles(tempRoles)
+        }
+    }
+
+    const handleClickSave = async ()=>{
+        const payload = {
+            idGroup:idGroupSelected,
+            roles:[]
+        }
+
+        const temp =[]
+        roles.forEach(role=>{
+            if(role.isSelected){
+                temp.push({
+                    groupId:idGroupSelected,
+                    roleId:role.id
+                })
+            }
+        })
+        payload.roles = temp
+
+        const res = await assignRoleToGroup(payload)
+        if(res&&res.errCode===0){
+            toast.success(res.message)
+        }
         
     }
 
@@ -66,9 +97,7 @@ function GroupRole() {
                     {groups.length > 0 &&
                         groups.map(group => {
                             return (
-                                <option key={`keyGroup-${group.id}`} value={group.id}
-                                    onClick={()=>{handleClickOnchangeOption()}}
-                                >
+                                <option key={`keyGroup-${group.id}`} value={group.id}>
                                     {group.name}
                                 </option>
                             )
@@ -86,13 +115,24 @@ function GroupRole() {
                     return (
                         <div className="flex flex-col gap-1" key={`key-role-${role.id}`}>
                             <div className="flex items-center gap-1">
-                                <input className="mt-[3px]" type="checkbox" id="vehicle1" name="vehicle1" value={role.id} checked={role.isSelected} />
-                                <label htmlFor="vehicle1" className="cursor-pointer">{role.url}</label>
+                                <input className="mt-[3px]" type="checkbox" id={`key-role-${role.id}`} name="vehicle1" value={role.id} checked={role.isSelected}
+                                    onChange={() => { handleClickOnchangeOption(+role.id) }}
+                                />
+                                <label htmlFor={`key-role-${role.id}`} className="cursor-pointer">{role.url}</label>
                             </div>
                         </div>
                     )
                 })
             }
+
+            <div>
+                <button
+                    className=" mt-5 px-4 py-2 font-medium text-white bg-yellow-600 rounded-md hover:bg-yellow-500 focus:outline-none focus:shadow-outline-blue active:bg-blue-600 transition duration-150 ease-in-out"
+                    onClick={()=>{handleClickSave()}}
+                >
+                    Save
+                </button>
+            </div>
         </div>
     );
 }

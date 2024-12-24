@@ -70,4 +70,10 @@ const getRolebyIdGroup = (id)=>{
     })
 }
 
-export { testApi, register, login, getUsers, deleteUser, getGroups, createUser, getUserById,editUser,logout,getRoles,createRoles,deleteRole,getRolebyIdGroup }
+const assignRoleToGroup = (data)=>{
+    return axios.post('assignRoleToGroup',data)
+}
+
+export { testApi, register, login, getUsers, deleteUser, 
+    getGroups, createUser, getUserById,editUser,logout,getRoles,
+    createRoles,deleteRole,getRolebyIdGroup,assignRoleToGroup }
